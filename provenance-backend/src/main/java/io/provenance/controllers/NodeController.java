@@ -43,7 +43,7 @@ public class NodeController {
 					Node node = new Node(id, name, successor);
 					topology.put(id, node);
 				}
-				if(id.equals(successor)) {
+				if(!id.equals(successor)) {
 					if(topology.containsKey(successor)) {
 						Node node = topology.get(successor);
 						node.setPredecessor(id);
