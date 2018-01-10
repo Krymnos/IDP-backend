@@ -43,13 +43,15 @@ public class NodeController {
 					Node node = new Node(id, name, successor);
 					topology.put(id, node);
 				}
-				if(topology.containsKey(successor)) {
-					Node node = topology.get(successor);
-					node.setPredecessor(id);
-					topology.put(successor, node);
+				if(id.equals(successor)) {
+					if(topology.containsKey(successor)) {
+						Node node = topology.get(successor);
+						node.setPredecessor(id);
+						topology.put(successor, node);
+					}
+					else
+						topology.put(successor, new Node(id));
 				}
-				else
-					topology.put(successor, new Node(id));
 				mapping.put(id, name);
 			}
 			List<Node> nodes = new ArrayList<Node>();
