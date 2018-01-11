@@ -26,7 +26,6 @@ public class NodeController {
 	public ResponseEntity<?> getNodes() {
 		try {
 			Map<String, Node> topology = new HashMap<String, Node>();
-			Map<String, String> mapping = new HashMap<String, String>();
 			String query = String.format("Select * from %s.node", Config.getKEYSPACE());
 			Session session = CassandraConnector.getSession();
 			ResultSet rows = session.execute(query);
@@ -52,16 +51,10 @@ public class NodeController {
 					else
 						topology.put(successor, new Node(id));
 				}
-				mapping.put(id, name);
 			}
 			List<Node> nodes = new ArrayList<Node>();
-			for( String key : topology.keySet()) {
-				Node node = topology.get(key);
-				Node newNode = new Node(node.getId(), node.getName(), mapping.get(node.getSuccessor()));
-				for(String pre : node.getPredecessor())
-					newNode.setPredecessor(mapping.get(pre));
-				nodes.add(newNode);
-			}
+			for( String key : topology.keySet())
+				nodes.add(topology.get(key));
 			return ResponseEntity.status(200).body(new ObjectMapper().writeValueAsString(nodes));
 		} catch (Exception e) {
 			e.printStackTrace();

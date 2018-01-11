@@ -6,17 +6,19 @@ import java.util.List;
 public class Node {
 	private String id;
 	private String name;
-	private String successor;
+	private List<String> successor;
 	private List<String> predecessor;
 	
 	public Node(String id, String name, String next) {
 		this.id = id;
 		this.name = name;
-		this.successor = next;
+		this.successor = new ArrayList<String>();
 		this.predecessor = new ArrayList<String>();
+		this.successor.add(next);
 	}
 	
 	public Node(String pre) {
+		this.successor = new ArrayList<String>();
 		this.predecessor = new ArrayList<String>();
 		this.predecessor.add(pre);
 	}
@@ -35,11 +37,11 @@ public class Node {
 		this.name = name;
 	}
 
-	public String getSuccessor() {
+	public List<String> getSuccessor() {
 		return successor;
 	}
 	public void setSuccessor(String next) {
-		this.successor = next;
+		this.successor.add(next);
 	}
 
 	public List<String> getPredecessor() {
