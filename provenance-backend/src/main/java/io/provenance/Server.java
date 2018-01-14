@@ -9,7 +9,7 @@ import io.provenance.exception.ConfigParseException;
 @SpringBootApplication
 @ComponentScan("io.provenance")
 public class Server {
-
+	
 	public static void main(String[] args) throws ConfigParseException {
 		Config.loadFromFile(args[0]);
 		SpringApplication.run(Server.class, args);

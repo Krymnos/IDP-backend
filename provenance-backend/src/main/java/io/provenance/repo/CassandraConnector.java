@@ -13,7 +13,8 @@ public class CassandraConnector {
 	public static Session getSession() {
 		if(cluster == null) 
 			cluster = Cluster.builder().addContactPoint(Config.getDB_IP()).withPort(Config.getDB_Port()).build();
-		session = cluster.connect();
+		if(session == null || session.isClosed())
+			session = cluster.connect();
 		return session;
 	}
 }

@@ -64,7 +64,7 @@
 	<properties>
 		<junit.version>4.12</junit.version>
 		<spring-boot.version>1.5.8.RELEASE</spring-boot.version>
-		<com.datastax.cassandra-driver-core.version>3.1.0</com.datastax.cassandra-driver-core.version>
+		<com.datastax.cassandra-driver-core.version>3.3.2</com.datastax.cassandra-driver-core.version>
 	</properties>
   
 </project>

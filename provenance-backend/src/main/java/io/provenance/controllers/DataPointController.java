@@ -1,0 +1,36 @@
+package io.provenance.controllers;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.Session;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.provenance.config.Config;
+import io.provenance.controllers.helper.ControllerHelper;
+import io.provenance.model.Datapoint;
+import io.provenance.repo.CassandraConnector;
+
+@RestController
+public class DataPointController {
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/provenance/{id}", produces = "application/json")
+	public ResponseEntity<?> getProvenanceDataPoint(@PathVariable(value="id") String id) {
+		try {
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			Session session = CassandraConnector.getSession();
+			String query = String.format("select * from %s.%s where id = ?", Config.getKEYSPACE(), Config.getTABLE());
+			PreparedStatement prepared = session.prepare(query);
+			Datapoint dp = ControllerHelper.queryDatapoint(session, prepared, id);
+			if(dp != null)
+				return ResponseEntity.status(200).body(mapper.writeValueAsString(dp));
+			else
+				return ResponseEntity.status(204).build();
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
+		}
+	}
+}

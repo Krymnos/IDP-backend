@@ -12,6 +12,7 @@ public class Config {
 	private static  String DB_IP;
 	private static int DB_PORT;
 	private static String KEYSPACE;
+	private static String TABLE;
 	
 	public static String getDB_IP() {
 		return DB_IP;
@@ -25,6 +26,10 @@ public class Config {
 		return KEYSPACE;
 	}
 	
+	public static String getTABLE() {
+		return TABLE;
+	}
+	
 	public static void loadFromFile(String configPath) throws ConfigParseException {
 		InputStream inputStream = null;
 		Properties properties = new Properties();
@@ -34,6 +39,7 @@ public class Config {
 			DB_IP = properties.getProperty("DB_IP");
 			DB_PORT = Integer.parseInt(properties.getProperty("DB_PORT"));
 			KEYSPACE = properties.getProperty("KEYSPACE");
+			TABLE = properties.getProperty("TABLE");
 			inputStream.close();
 		} catch(FileNotFoundException fnex) {
 			throw new ConfigParseException("Problem in loading configuration file.");

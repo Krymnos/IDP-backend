@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+        <comment>Provenance Backend Configuration</comment>
+        <entry key="DB_IP"></entry>
+        <entry key="DB_PORT"></entry>
+        <entry key="KEYSPACE"></entry>
+        <entry key="TABLE"></entry>
+
+</properties>
