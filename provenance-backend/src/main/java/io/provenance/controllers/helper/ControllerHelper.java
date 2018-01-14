@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -16,8 +15,9 @@ import io.provenance.model.Node;
 
 public class ControllerHelper {
 	
-	public static Datapoint queryDatapoint(Session session, PreparedStatement prepared, String id) {
-		Row row = session.execute(prepared.bind(id)).one();
+	public static Datapoint queryDatapoint(Session session, String query, String id) {
+		String finalQuery = String.format(query, id);
+		Row row = session.execute(finalQuery).one();
 		if(row != null) {
 			String dpId = row.getString("id");
 			Context dpContext = new Context();
@@ -47,7 +47,7 @@ public class ControllerHelper {
 			Datapoint dp = new Datapoint(dpId, dpContext);
 			Map<String, String> inputDPs = row.getMap("inputDPs", String.class, String.class);
 			for(String key : inputDPs.keySet())
-				dp.setInputDatapoint(new InputDatapoint(queryDatapoint(session, prepared, key), inputDPs.get(key)));
+				dp.setInputDatapoint(new InputDatapoint(queryDatapoint(session, query, key), inputDPs.get(key)));
 			return dp;
 		} else
 			return null;

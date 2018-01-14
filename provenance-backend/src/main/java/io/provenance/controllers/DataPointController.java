@@ -22,9 +22,8 @@ public class DataPointController {
 		try {
 			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
 			Session session = CassandraConnector.getSession();
-			String query = String.format("select * from %s.%s where id = ?", Config.getKEYSPACE(), Config.getTABLE());
-			PreparedStatement prepared = session.prepare(query);
-			Datapoint dp = ControllerHelper.queryDatapoint(session, prepared, id);
+			String query = String.format("select * from %s.%s where id = '%s'", Config.getKEYSPACE(), Config.getTABLE(), "%s");
+			Datapoint dp = ControllerHelper.queryDatapoint(session, query, id);
 			if(dp != null)
 				return ResponseEntity.status(200).body(mapper.writeValueAsString(dp));
 			else
