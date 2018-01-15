@@ -5,15 +5,24 @@ import java.util.Date;
 import org.springframework.data.cassandra.mapping.PrimaryKey;
 import org.springframework.data.cassandra.mapping.Table;
 
-@Table
+@Table("")
 public class NodeHealth {
 
 	@PrimaryKey
 	private String id;
-	private Date timestamp;
 	private String parameter1;
 	private String parameter2;
 	private String status;
+	
+	public NodeHealth() {
+		
+	}
+	public NodeHealth(String id,String parameter1,String parameter2,String status) {
+		this.id = id;
+		this.parameter1 = parameter1;
+		this.parameter2 = parameter2;
+		this.status = status;
+	}
 	
 	public String getId() {
 		return id;
@@ -21,12 +30,7 @@ public class NodeHealth {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public Date getTimestamp() {
-		return timestamp;
-	}
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
+	
 	public String getParameter1() {
 		return parameter1;
 	}
