@@ -1,8 +1,8 @@
 package io.provenance.repo;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.cassandra.repository.CassandraRepository;
 import io.provenance.model.NodeHealth;
 
-public interface NodeHealthRepository extends CrudRepository<NodeHealth,String>{
+public interface NodeHealthRepository extends CassandraRepository<NodeHealth>{
 
 }
