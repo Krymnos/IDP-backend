@@ -12,6 +12,7 @@ import io.provenance.model.Datapoint;
 import io.provenance.model.InputDatapoint;
 import io.provenance.model.Location;
 import io.provenance.model.Node;
+import io.provenance.model.SimpleDatapoint;
 
 public class ControllerHelper {
 	
@@ -84,4 +85,16 @@ public class ControllerHelper {
 			nodes.add(topology.get(key));
 		return nodes;
 	}
+	
+	public static void getInputDatapointId(Datapoint dp,List<String> dpsarray) {
+		List<InputDatapoint> inputdps = dp.getInputDatapoints();
+		for(int i=0;i< inputdps.size();i++) {
+			InputDatapoint ipd= inputdps.get(i);
+			if(ipd.getDp() != null) {
+				dpsarray.add(ipd.getDp().getId());
+				getInputDatapointId(ipd.getDp(),dpsarray);
+			}
+		}
+	}
+
 }
