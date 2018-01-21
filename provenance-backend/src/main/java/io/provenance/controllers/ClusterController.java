@@ -39,8 +39,8 @@ public class ClusterController {
 	@RequestMapping(method = RequestMethod.GET, path = "/cluster/stats", produces = "application/json")
 	public ResponseEntity<?> getHealth() {
 		try {
-			String healthQuery = String.format("Select uid, id from %s.heartbeat WHERE latest = TRUE", Config.getKEYSPACE());
-			String rateQuery = String.format("Select uid, id, srate, rrate from %s.noderate  WHERE latest = TRUE", Config.getKEYSPACE());
+			String healthQuery = String.format("Select * from %s.heartbeat", Config.getKEYSPACE());
+			String rateQuery = String.format("Select * from %s.noderate", Config.getKEYSPACE());
 			Session session = CassandraConnector.getSession();
 			List<NodeStat> clusterStats = ControllerHelper.queryStats(session, healthQuery, rateQuery);
 			if(clusterStats.size() > 0)
@@ -58,7 +58,7 @@ public class ClusterController {
 		try {
 			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
 			int numOfRecords = Integer.parseInt(size);
-			String query = String.format("SELECT * FROM %s.%s WHERE ID LIKE '%s' ORDER BY time ASC LIMIT %d", Config.getKEYSPACE(), Config.getTABLE(), "%".concat(nodeId), numOfRecords);
+			String query = String.format("SELECT * FROM %s.%s WHERE ID LIKE '%s' ORDER BY id ASC LIMIT %d", Config.getKEYSPACE(), Config.getTABLE(), "%".concat(nodeId), numOfRecords);
 			Session session = CassandraConnector.getSession();
 			List<Datapoint> datapoints = ControllerHelper.queryDatapoints(session, query);
 			if(datapoints.size() > 0)

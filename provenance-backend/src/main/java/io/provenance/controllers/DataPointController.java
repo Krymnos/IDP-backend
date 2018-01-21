@@ -5,11 +5,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
 import io.provenance.model.Datapoint;
@@ -28,7 +26,7 @@ public class DataPointController {
 			if(dp != null)
 				return ResponseEntity.status(200).body(mapper.writeValueAsString(dp));
 			else
-				return ResponseEntity.status(204).build();
+				return ResponseEntity.status(404).body("No provenance is available.");
 		} catch (Exception e) {
 			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
 		}

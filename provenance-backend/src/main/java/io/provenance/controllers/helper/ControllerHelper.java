@@ -23,19 +23,6 @@ public class ControllerHelper {
 	
 	static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
 	
-	public static Datapoint queryDatapoint(Session session, String query, String id) {
-		String finalQuery = String.format(query, id);
-		Row row = session.execute(finalQuery).one();
-		if(row != null) {
-			Datapoint dp = getDaatapoint(row);
-			Map<String, String> inputDPs = row.getMap("inputDPs", String.class, String.class);
-			for(String key : inputDPs.keySet())
-				dp.setInputDatapoint(new InputDatapoint(queryDatapoint(session, query, key), inputDPs.get(key)));
-			return dp;
-		} else
-			return null;
-	}
-	
 	public static List<Node> queryTopology(Session session, String query) {
 		List<Node> nodes = new ArrayList<Node>();
 		ResultSet rows = session.execute(query);
@@ -44,14 +31,6 @@ public class ControllerHelper {
 		return nodes;
 	}
 	
-	public static List<Datapoint> queryDatapoints(Session session, String query) {
-		List<Datapoint> datapoints = new ArrayList<Datapoint>();
-		ResultSet result = session.execute(query);
-		for(Row row : result.all())
-			datapoints.add(getDaatapoint(row));
-		return datapoints;
-	}
-		
 	public static List<NodeStat> queryStats(Session session, String healthQuery, String rateQuery) {
 		List<NodeStat> clusterStats = new ArrayList<NodeStat>();
 		Set<String> nodeIDs = new HashSet<String>();
@@ -62,7 +41,7 @@ public class ControllerHelper {
 		for(Row row : healthResultSet.all()) {
 			String id = row.getString("id");
 			nodeIDs.add(id);
-			heartbetas.put(id, getTimeFromUUID(row.getUUID("uid")));
+			heartbetas.put(id, row.getTimestamp("time").getTime());
 		}
 		for(Row row : rateResultSet.all()) {
 			String id = row.getString("id");
@@ -70,7 +49,7 @@ public class ControllerHelper {
 			Map<String, Object> nodeStats = new HashMap<String, Object>();
 			nodeStats.put("srate", row.getDouble("srate"));
 			nodeStats.put("rrate", row.getDouble("rrate"));
-			nodeStats.put("time", getTimeFromUUID(row.getUUID("uid")));
+			nodeStats.put("time", row.getTimestamp("time").getTime());
 			rates.put(id, nodeStats);
 		}
 		for(String nodeID : nodeIDs) {
@@ -96,6 +75,27 @@ public class ControllerHelper {
 			clusterStats.add(nodeStats);
 		}
 		return clusterStats;
+	}
+
+	public static List<Datapoint> queryDatapoints(Session session, String query) {
+		List<Datapoint> datapoints = new ArrayList<Datapoint>();
+		ResultSet result = session.execute(query);
+		for(Row row : result.all())
+			datapoints.add(getDaatapoint(row));
+		return datapoints;
+	}
+	
+	public static Datapoint queryDatapoint(Session session, String query, String id) {
+		String finalQuery = String.format(query, id);
+		Row row = session.execute(finalQuery).one();
+		if(row != null) {
+			Datapoint dp = getDaatapoint(row);
+			Map<String, String> inputDPs = row.getMap("inputDPs", String.class, String.class);
+			for(String key : inputDPs.keySet())
+				dp.setInputDatapoint(new InputDatapoint(queryDatapoint(session, query, key), inputDPs.get(key)));
+			return dp;
+		} else
+			return null;
 	}
 	
 	public static Datapoint getDaatapoint(Row row) {
