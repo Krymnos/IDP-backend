@@ -31,4 +31,20 @@ public class DataPointController {
 			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
 		}
 	}
+	
+	@RequestMapping(method = RequestMethod.GET, path = "/static/provenance/{id}", produces = "application/json")
+	public ResponseEntity<?> getProvenanceDataPointJsonFile(@PathVariable(value="id") String id) {
+		try {
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			Session session = CassandraConnector.getSession();
+			String query = String.format("select * from %s.%s where id = '%s'", Config.getKEYSPACE(), Config.getTABLE(), "%s");
+			Datapoint dp = ControllerHelper.queryDatapoint(session, query, id);
+			if(dp != null)
+				return ResponseEntity.status(200).header("Content-Disposition", "attachment; filename=\"provenance.json\"").body(mapper.writeValueAsString(dp));
+			else
+				return ResponseEntity.status(404).body("No provenance is available.");
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
+		}
+	}
 }
