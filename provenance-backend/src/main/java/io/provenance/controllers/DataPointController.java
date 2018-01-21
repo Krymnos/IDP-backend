@@ -1,22 +1,18 @@
 package io.provenance.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.datastax.driver.core.PreparedStatement;
+
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
 import io.provenance.model.Datapoint;
-import io.provenance.model.InputDatapoint;
-import io.provenance.model.SimpleDatapoint;
 import io.provenance.repo.CassandraConnector;
 
 @RestController
@@ -31,27 +27,6 @@ public class DataPointController {
 			Datapoint dp = ControllerHelper.queryDatapoint(session, query, id);
 			if(dp != null)
 				return ResponseEntity.status(200).body(mapper.writeValueAsString(dp));
-			else
-				return ResponseEntity.status(204).build();
-		} catch (Exception e) {
-			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
-		}
-	}
-	
-	@RequestMapping(method = RequestMethod.GET, path = "/provenance/{id}/inputDatapoints", produces = "application/json")
-	public ResponseEntity<?> getProvenanceInputDataPoint(@PathVariable(value="id") String id) {
-		try {
-			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
-			Session session = CassandraConnector.getSession();
-			String query = String.format("select * from %s.%s where id = '%s'", Config.getKEYSPACE(), Config.getTABLE(), "%s");
-			Datapoint dp = ControllerHelper.queryDatapoint(session, query, id);
-			if(dp != null) {
-				String dpId = dp.getId();
-				List<String> dpsarray = new ArrayList<String>();
-				ControllerHelper.getInputDatapointId(dp, dpsarray);
-				SimpleDatapoint sdp = new SimpleDatapoint(dpId,dpsarray);
-				return ResponseEntity.status(200).body(mapper.writeValueAsString(sdp));
-			}
 			else
 				return ResponseEntity.status(204).build();
 		} catch (Exception e) {

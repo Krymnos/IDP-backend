@@ -1,27 +1,15 @@
 package io.provenance.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Node {
 	
 	private String id;
 	private String name;
-	private List<String> successor;
-	private List<String> predecessor;
+	private String successor;
 	
 	public Node(String id, String name, String next) {
 		this.id = id;
 		this.name = name;
-		this.successor = new ArrayList<String>();
-		this.predecessor = new ArrayList<String>();
-		this.successor.add(next);
-	}
-	
-	public Node(String pre) {
-		this.successor = new ArrayList<String>();
-		this.predecessor = new ArrayList<String>();
-		this.predecessor.add(pre);
+		this.successor = next;
 	}
 
 	public String getId() {
@@ -38,17 +26,10 @@ public class Node {
 		this.name = name;
 	}
 
-	public List<String> getSuccessor() {
+	public String getSuccessor() {
 		return successor;
 	}
 	public void setSuccessor(String next) {
-		this.successor.add(next);
-	}
-
-	public List<String> getPredecessor() {
-		return predecessor;
-	}
-	public void setPredecessor(String pre) {
-		this.predecessor.add(pre);
+		this.successor = next;
 	}
 }
