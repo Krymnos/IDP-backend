@@ -7,9 +7,9 @@
 
 	<packaging>jar</packaging>
 	<parent>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-parent</artifactId>
-	    <version>1.5.9.RELEASE</version>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
 	</parent>
 	<build>
 		<plugins>
@@ -47,22 +47,22 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
-    <groupId>io.springfox</groupId>
-    <artifactId>springfox-swagger2</artifactId>
-    <version>2.6.1</version>
-    <scope>compile</scope>
-</dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
 
 		<dependency>
-    <groupId>io.springfox</groupId>
-    <artifactId>springfox-swagger-ui</artifactId>
-    <version>2.6.1</version>
-    <scope>compile</scope>
-</dependency>
- 
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -78,7 +78,7 @@
 			<version>${com.datastax.cassandra-driver-core.version}</version>
 		</dependency>
 	</dependencies>
-	
+
 	<properties>
 		<spring-boot.version>1.5.9.RELEASE</spring-boot.version>
 		<com.datastax.cassandra-driver-core.version>3.3.2</com.datastax.cassandra-driver-core.version>
