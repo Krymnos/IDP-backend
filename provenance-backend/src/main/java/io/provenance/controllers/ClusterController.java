@@ -61,7 +61,7 @@ public class ClusterController {
 				throw new InvalidInputException("Invalid size (Size should be a number <= 1000).");
 			if(nodeId.length() != 6)
 				throw new InvalidInputException("Invalid node id.");
-			String query = String.format("SELECT * FROM %s.%s WHERE nodeid = '%s'LIMIT %d", Config.getKEYSPACE(), Config.getTABLE(), nodeId, numOfRecords);
+			String query = String.format("SELECT * FROM %s.%s WHERE nodeid = '%s'LIMIT %d ALLOW FILTERING", Config.getKEYSPACE(), Config.getTABLE(), nodeId, numOfRecords);
 			Session session = CassandraConnector.getSession();
 			List<Datapoint> datapoints = ControllerHelper.queryDatapoints(session, query);
 			if(datapoints.size() > 0)
