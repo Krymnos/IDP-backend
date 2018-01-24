@@ -4,10 +4,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
 import io.provenance.model.Datapoint;
@@ -32,10 +35,11 @@ public class DataPointController {
 		}
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, path = "/static/provenance/{id}", produces = "application/json")
+	@RequestMapping(method = RequestMethod.GET, path = "/provenance/{id}/static", produces = "application/json")
 	public ResponseEntity<?> getProvenanceDataPointJsonFile(@PathVariable(value="id") String id) {
 		try {
 			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 			Session session = CassandraConnector.getSession();
 			String query = String.format("select * from %s.%s where id = '%s'", Config.getKEYSPACE(), Config.getTABLE(), "%s");
 			Datapoint dp = ControllerHelper.queryDatapoint(session, query, id);
