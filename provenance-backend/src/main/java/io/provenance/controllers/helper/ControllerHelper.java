@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-
 import io.provenance.model.Context;
 import io.provenance.model.Datapoint;
 import io.provenance.model.InputDatapoint;
@@ -71,7 +69,7 @@ public class ControllerHelper {
 			NodeStat nodeStats = new NodeStat(id);
 			nodeStats.setSendRate(sendRate);
 			nodeStats.setReceiveRate(receiveRate);
-			nodeStats.setColor(getColorStatus(recentTime));
+			nodeStats.setHealth(getHealthStatus(recentTime));
 			clusterStats.add(nodeStats);
 		}
 		return clusterStats;
@@ -127,7 +125,7 @@ public class ControllerHelper {
 		return new Datapoint(dpId, dpContext);
 	}
 	
-	public static String getColorStatus(long time) {
+	public static String getHealthStatus(long time) {
 		long currentTime = System.currentTimeMillis();
 		if((currentTime-time) <= 300000)
 			return "Green";

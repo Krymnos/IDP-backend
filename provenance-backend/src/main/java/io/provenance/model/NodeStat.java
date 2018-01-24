@@ -3,7 +3,7 @@ package io.provenance.model;
 public class NodeStat {
 
 	private String id;
-	private String color;
+	private String health;
 	private double sendRate;
 	private double receiveRate;
 	
@@ -15,13 +15,14 @@ public class NodeStat {
 		return id;
 	}
 	
-	public String getColor() {
-		return color;
+	public String getHealth() {
+		return health;
 	}
-	public void setColor(String color) {
-		this.color = color;
+
+	public void setHealth(String health) {
+		this.health = health;
 	}
-	
+
 	public double getSendRate() {
 		return sendRate;
 	}

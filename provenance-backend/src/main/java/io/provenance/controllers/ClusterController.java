@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
+import io.provenance.exception.InvalidInputException;
 import io.provenance.model.Datapoint;
 import io.provenance.model.Node;
 import io.provenance.model.NodeStat;
@@ -31,7 +32,6 @@ public class ClusterController {
 			else
 				return ResponseEntity.status(404).body("No Cluster found.");
 		} catch (Exception e) {
-			e.printStackTrace();
 			return ResponseEntity.status(500).body( "\"" + e.getMessage() + "\"");
 		}
 	}
@@ -48,7 +48,6 @@ public class ClusterController {
 			else
 				return ResponseEntity.status(404).body("No stats found.");
 		} catch (Exception e) {
-			e.printStackTrace();
 			return ResponseEntity.status(500).body( "\"" + e.getMessage() + "\"");
 		}
 	}
@@ -56,9 +55,13 @@ public class ClusterController {
 	@RequestMapping(method = RequestMethod.GET, path = "/cluster/{nodeId}/provenance", produces = "application/json")
 	public ResponseEntity<?> getProvenanceData(@PathVariable(value="nodeId") String nodeId, @RequestParam String size) {
 		try {
-			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			int numOfRecords = Integer.parseInt(size);
-			String query = String.format("SELECT * FROM %s.%s WHERE ID LIKE '%s' ORDER BY id ASC LIMIT %d", Config.getKEYSPACE(), Config.getTABLE(), "%".concat(nodeId), numOfRecords);
+			if(numOfRecords <0 || numOfRecords > 1000)
+				throw new InvalidInputException("Invalid size (Size should be a number <= 1000).");
+			if(nodeId.length() != 6)
+				throw new InvalidInputException("Invalid node id.");
+			String query = String.format("SELECT * FROM %s.%s WHERE nodeid = '%s'LIMIT %d", Config.getKEYSPACE(), Config.getTABLE(), nodeId, numOfRecords);
 			Session session = CassandraConnector.getSession();
 			List<Datapoint> datapoints = ControllerHelper.queryDatapoints(session, query);
 			if(datapoints.size() > 0)
@@ -66,9 +69,10 @@ public class ClusterController {
 			else
 				return ResponseEntity.status(404).body("No provenance is available.");
 		} catch(NumberFormatException nfe) {
-			return ResponseEntity.status(400).body( "\"Invalid size (Size should be a number <= 1000.)\"");
-		}
-		catch (Exception e) {
+			return ResponseEntity.status(400).body( "\"Invalid size (Size should be a number <= 1000).\"");
+		} catch(InvalidInputException iie) {
+			return ResponseEntity.status(400).body( "\""+ iie.getMessage() +"\"");
+		} catch (Exception e) {
 			return ResponseEntity.status(500).body( "\"" + e.getMessage() + "\"");
 		}
 	}
