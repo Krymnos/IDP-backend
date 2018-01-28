@@ -1,3 +1,4 @@
+sudo: true
 language: java
 before_script: cd provenance-backend
 
