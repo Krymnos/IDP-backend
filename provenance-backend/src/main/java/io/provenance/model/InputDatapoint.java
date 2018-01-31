@@ -3,11 +3,11 @@ package io.provenance.model;
 public class InputDatapoint {
 
 	private Datapoint dp;
-	private String contrIbution;
+	private String contribution;
 	
-	public InputDatapoint(Datapoint dp, String contrIbution) {
+	public InputDatapoint(Datapoint dp, String contribution) {
 		this.dp = dp;
-		this.contrIbution = contrIbution;
+		this.contribution = contribution;
 	}
 
 	public Datapoint getDp() {
@@ -17,10 +17,10 @@ public class InputDatapoint {
 		this.dp = dp;
 	}
 
-	public String getContrIbution() {
-		return contrIbution;
+	public String getContribution() {
+		return contribution;
 	}
-	public void setContrIbution(String contrIbution) {
-		this.contrIbution = contrIbution;
+	public void setContribution(String contribution) {
+		this.contribution = contribution;
 	}
 }
