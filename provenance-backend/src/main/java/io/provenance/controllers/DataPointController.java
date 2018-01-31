@@ -24,7 +24,7 @@ public class DataPointController {
 	@RequestMapping(method = RequestMethod.GET, path = "/provenance/{id}", produces = "application/json")
 	public ResponseEntity<?> getProvenanceDataPoint(@PathVariable(value="id") String id, @RequestParam String structure) {
 		try {
-			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			Session session = CassandraConnector.getSession();
 			String query = String.format("select * from %s.%s where id = '%s'", Config.getKEYSPACE(), Config.getTABLE(), "%s");
 			if(structure.toLowerCase().equals("recursive")) {
@@ -36,7 +36,7 @@ public class DataPointController {
 			} else if (structure.toLowerCase().equals("linear")) {
 				List<Datapoint> datapoints = ControllerHelper.queryDatapointLinear(session, query, id);
 				if(!datapoints.isEmpty())
-					return ResponseEntity.status(200).body(new ObjectMapper().writeValueAsString(datapoints));
+					return ResponseEntity.status(200).body(mapper.writeValueAsString(datapoints));
 				else
 					return ResponseEntity.status(404).body("No provenance is available.");
 			} else
@@ -49,7 +49,7 @@ public class DataPointController {
 	@RequestMapping(method = RequestMethod.GET, path = "/provenance/{id}/static", produces = "application/json")
 	public ResponseEntity<?> getProvenanceDataPointJsonFile(@PathVariable(value="id") String id, @RequestParam String structure) {
 		try {
-			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 			Session session = CassandraConnector.getSession();
 			String query = String.format("select * from %s.%s where id = '%s'", Config.getKEYSPACE(), Config.getTABLE(), "%s");
@@ -62,7 +62,7 @@ public class DataPointController {
 			} else if (structure.toLowerCase().equals("linear")) {
 				List<Datapoint> datapoints = ControllerHelper.queryDatapointLinear(session, query, id);
 				if(!datapoints.isEmpty())
-					return ResponseEntity.status(200).header("Content-Disposition", "attachment; filename=\"provenance.json\"").body(new ObjectMapper().writeValueAsString(datapoints));
+					return ResponseEntity.status(200).header("Content-Disposition", "attachment; filename=\"provenance.json\"").body(mapper.writeValueAsString(datapoints));
 				else
 					return ResponseEntity.status(404).body("No provenance is available.");
 			} else
