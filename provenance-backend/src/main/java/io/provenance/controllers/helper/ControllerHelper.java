@@ -3,8 +3,10 @@ package io.provenance.controllers.helper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import com.datastax.driver.core.ResultSet;
@@ -83,17 +85,37 @@ public class ControllerHelper {
 		return datapoints;
 	}
 	
-	public static Datapoint queryDatapoint(Session session, String query, String id) {
+	public static Datapoint queryDatapointRecursive(Session session, String query, String id) {
 		String finalQuery = String.format(query, id);
 		Row row = session.execute(finalQuery).one();
 		if(row != null) {
 			Datapoint dp = getDaatapoint(row);
 			Map<String, String> inputDPs = row.getMap("inputDPs", String.class, String.class);
 			for(String key : inputDPs.keySet())
-				dp.setInputDatapoint(new InputDatapoint(queryDatapoint(session, query, key), inputDPs.get(key)));
+				dp.setInputDatapoint(new InputDatapoint(queryDatapointRecursive(session, query, key), inputDPs.get(key)));
 			return dp;
 		} else
 			return null;
+	}
+	
+	public static List<Datapoint> queryDatapointLinear(Session session, String query, String id) {
+		Queue<String> queue = new LinkedList<String>();
+		List<Datapoint> datapoints = new ArrayList<Datapoint>();
+		queue.add(id);
+		while(!queue.isEmpty()) {
+			String finalQuery = String.format(query, queue.poll());
+			Row row = session.execute(finalQuery).one();
+			if(row != null) {
+				Datapoint dp = getDaatapoint(row);
+				Map<String, String> inputDPs = row.getMap("inputDPs", String.class, String.class);
+				for(String key : inputDPs.keySet()) {
+					dp.setInputDatapoint(new InputDatapoint(new Datapoint(key), inputDPs.get(key)));
+					queue.add(key);
+				}
+				datapoints.add(dp);
+			}
+		}
+		return datapoints;
 	}
 	
 	public static Datapoint getDaatapoint(Row row) {

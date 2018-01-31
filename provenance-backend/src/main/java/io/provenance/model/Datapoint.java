@@ -8,7 +8,12 @@ public class Datapoint {
 	private String id;
 	private List<InputDatapoint> inputDatapoints;
 	private Context context;
-		
+	
+	public Datapoint(String id) {
+		this.id = id;
+		this.inputDatapoints = new ArrayList<InputDatapoint>();
+	}
+	
 	public Datapoint(String id, Context context) {
 		this.id = id;
 		this.context = context;

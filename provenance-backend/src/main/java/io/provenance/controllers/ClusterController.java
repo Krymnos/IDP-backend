@@ -27,7 +27,7 @@ public class ClusterController {
 			String query = String.format("Select * from %s.node", Config.getKEYSPACE());
 			Session session = CassandraConnector.getSession();
 			List<Node> cluster = ControllerHelper.queryTopology(session, query);
-			if(cluster.size() > 0)
+			if(!cluster.isEmpty())
 				return ResponseEntity.status(200).body(new ObjectMapper().writeValueAsString(cluster));
 			else
 				return ResponseEntity.status(404).body("No Cluster found.");
@@ -43,7 +43,7 @@ public class ClusterController {
 			String rateQuery = String.format("Select * from %s.noderate", Config.getKEYSPACE());
 			Session session = CassandraConnector.getSession();
 			List<NodeStat> clusterStats = ControllerHelper.queryStats(session, healthQuery, rateQuery);
-			if(clusterStats.size() > 0)
+			if(!clusterStats.isEmpty())
 				return ResponseEntity.status(200).body(new ObjectMapper().writeValueAsString(clusterStats));
 			else
 				return ResponseEntity.status(404).body("No stats found.");
@@ -64,7 +64,7 @@ public class ClusterController {
 			String query = String.format("SELECT * FROM %s.%s WHERE nodeid = '%s'LIMIT %d ALLOW FILTERING", Config.getKEYSPACE(), Config.getTABLE(), nodeId, numOfRecords);
 			Session session = CassandraConnector.getSession();
 			List<Datapoint> datapoints = ControllerHelper.queryDatapoints(session, query);
-			if(datapoints.size() > 0)
+			if(!datapoints.isEmpty())
 				return ResponseEntity.status(200).body(mapper.writeValueAsString(datapoints));
 			else
 				return ResponseEntity.status(404).body("No provenance is available.");
