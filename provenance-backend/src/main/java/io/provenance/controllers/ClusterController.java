@@ -24,11 +24,12 @@ public class ClusterController {
 	@RequestMapping(method = RequestMethod.GET, path = "/cluster/topology", produces = "application/json")
 	public ResponseEntity<?> getTopology() {
 		try {
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			String query = String.format("Select * from %s.node", Config.getKEYSPACE());
 			Session session = CassandraConnector.getSession();
 			List<Node> cluster = ControllerHelper.queryTopology(session, query);
 			if(!cluster.isEmpty())
-				return ResponseEntity.status(200).body(new ObjectMapper().writeValueAsString(cluster));
+				return ResponseEntity.status(200).body(mapper.writeValueAsString(cluster));
 			else
 				return ResponseEntity.status(404).body("No Cluster found.");
 		} catch (Exception e) {
@@ -39,12 +40,13 @@ public class ClusterController {
 	@RequestMapping(method = RequestMethod.GET, path = "/cluster/stats", produces = "application/json")
 	public ResponseEntity<?> getHealth() {
 		try {
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			String healthQuery = String.format("Select * from %s.heartbeat", Config.getKEYSPACE());
 			String rateQuery = String.format("Select * from %s.noderate", Config.getKEYSPACE());
 			Session session = CassandraConnector.getSession();
 			List<NodeStat> clusterStats = ControllerHelper.queryStats(session, healthQuery, rateQuery);
 			if(!clusterStats.isEmpty())
-				return ResponseEntity.status(200).body(new ObjectMapper().writeValueAsString(clusterStats));
+				return ResponseEntity.status(200).body(mapper.writeValueAsString(clusterStats));
 			else
 				return ResponseEntity.status(404).body("No stats found.");
 		} catch (Exception e) {

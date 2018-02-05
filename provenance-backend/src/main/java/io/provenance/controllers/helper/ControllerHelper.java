@@ -74,14 +74,16 @@ public class ControllerHelper {
 						nodeLatestStatusTime = ((long)chanels.get(chanel));
 				}
 			}
-			String endpoints[] = chanelID.split(":");
-			for(String chanel : chanels.keySet()) {
-				if(chanel.startsWith(endpoints[1]) && chanel.endsWith(endpoints[0])) {
-					if(((long)chanels.get(chanel)) > channelLatestStatusTime)
-						channelLatestStatusTime = ((long)chanels.get(chanel));
+			if(chanelID != null) {
+				String endpoints[] = chanelID.split(":");
+				for(String chanel : chanels.keySet()) {
+					if(chanel.startsWith(endpoints[1]) && chanel.endsWith(endpoints[0])) {
+						if(((long)chanels.get(chanel)) > channelLatestStatusTime)
+							channelLatestStatusTime = ((long)chanels.get(chanel));
+					}
 				}
+				nodeStat.setOutgoingChannelHealth(getHealthStatus(channelLatestStatusTime));
 			}
-			nodeStat.setOutgoingChannelHealth(getHealthStatus(channelLatestStatusTime));
 			nodeStat.setNodeHealth(getHealthStatus(nodeLatestStatusTime > (long)stats.get("time") ? nodeLatestStatusTime : (long)stats.get("time")));
 			clusterStats.add(nodeStat);
 		}
