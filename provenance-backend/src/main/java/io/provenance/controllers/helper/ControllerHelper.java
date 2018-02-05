@@ -2,13 +2,10 @@ package io.provenance.controllers.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -21,8 +18,6 @@ import io.provenance.model.NodeStat;
 
 public class ControllerHelper {
 	
-	static final long NUM_100NS_INTERVALS_SINCE_UUID_EPOCH = 0x01b21dd213814000L;
-	
 	public static List<Node> queryTopology(Session session, String query) {
 		List<Node> nodes = new ArrayList<Node>();
 		ResultSet rows = session.execute(query);
@@ -33,46 +28,61 @@ public class ControllerHelper {
 	
 	public static List<NodeStat> queryStats(Session session, String healthQuery, String rateQuery) {
 		List<NodeStat> clusterStats = new ArrayList<NodeStat>();
-		Set<String> nodeIDs = new HashSet<String>();
-		Map<String, Long> heartbetas = new HashMap<String, Long>();
-		Map<String, Map<String, Object>> rates = new HashMap<String, Map<String,Object>>();
+		Map<String, Map<String,Object>> nodeStats = new HashMap<String, Map<String,Object>>();
+		Map<String, Long> chanels = new HashMap<String, Long>();
 		ResultSet healthResultSet = session.execute(healthQuery);
 		ResultSet rateResultSet = session.execute(rateQuery);
 		for(Row row : healthResultSet.all()) {
 			String id = row.getString("id");
-			nodeIDs.add(id);
-			heartbetas.put(id, row.getTimestamp("time").getTime());
+			Map<String, Object> stats = new HashMap<String, Object>();
+			Map<String, Long> chanelsStatus = row.getMap("channels", String.class, Long.class);
+			for(String chanelStatus : chanelsStatus.keySet())
+				chanels.put(chanelStatus, chanelsStatus.get(chanelStatus));
+			stats.put("pldaemon", row.getTimestamp("pldaemon").getTime());
+			stats.put("time", row.getTimestamp("time").getTime());
+			nodeStats.put(id, stats);
 		}
 		for(Row row : rateResultSet.all()) {
 			String id = row.getString("id");
-			nodeIDs.add(id);
-			Map<String, Object> nodeStats = new HashMap<String, Object>();
-			nodeStats.put("srate", row.getDouble("srate"));
-			nodeStats.put("rrate", row.getDouble("rrate"));
-			nodeStats.put("time", row.getTimestamp("time").getTime());
-			rates.put(id, nodeStats);
+			Map<String, Object> stats = null;
+			if(nodeStats.containsKey(id))
+				stats = nodeStats.get(id);
+			else
+				stats = new HashMap<String, Object>();
+			stats.put("srate", row.getDouble("srate"));
+			stats.put("rrate", row.getDouble("rrate"));
+			nodeStats.put(id, stats);
 		}
-		for(String nodeID : nodeIDs) {
-			long rateTime = 0, heartbeatTime = 0;
-			String id = null;
-			double sendRate = 0.0, receiveRate = 0.0;
-			if(heartbetas.containsKey(nodeID)) {
-				id = nodeID;
-				heartbeatTime = heartbetas.get(nodeID);
+		for(String nodeID : nodeStats.keySet()) {
+			Map<String, Object> stats = nodeStats.get(nodeID);
+			NodeStat nodeStat = new NodeStat(nodeID);
+			nodeStat.setSendRate((double)stats.get("srate"));
+			nodeStat.setReceiveRate((double)stats.get("rrate"));
+			nodeStat.setProvenanceDaemonHealth(getHealthStatus((long)stats.get("time")));
+			nodeStat.setPipelineDaemonHealth(getHealthStatus((long)stats.get("pldaemon")));
+			String chanelID = null;
+			long nodeLatestStatusTime = 0;
+			long channelLatestStatusTime = 0;
+			for(String chanel : chanels.keySet()) {
+				if(chanel.startsWith(nodeID)) {
+					channelLatestStatusTime = ((long)chanels.get(chanel));
+					chanelID = chanel;
+				}
+				if(chanel.contains(nodeID)) {
+					if(((long)chanels.get(chanel)) > nodeLatestStatusTime)
+						nodeLatestStatusTime = ((long)chanels.get(chanel));
+				}
 			}
-			if(rates.containsKey(nodeID)) {
-				Map<String, Object> nodeStats = rates.get(nodeID);
-				id = nodeID;
-				sendRate = (double) nodeStats.get("srate");
-				receiveRate = (double) nodeStats.get("rrate");
-				rateTime = (long) nodeStats.get("time");
+			String endpoints[] = chanelID.split(":");
+			for(String chanel : chanels.keySet()) {
+				if(chanel.startsWith(endpoints[1]) && chanel.endsWith(endpoints[0])) {
+					if(((long)chanels.get(chanel)) > channelLatestStatusTime)
+						channelLatestStatusTime = ((long)chanels.get(chanel));
+				}
 			}
-			long recentTime = heartbeatTime > rateTime ? heartbeatTime : rateTime;
-			NodeStat nodeStats = new NodeStat(id);
-			nodeStats.setSendRate(sendRate);
-			nodeStats.setReceiveRate(receiveRate);
-			nodeStats.setHealth(getHealthStatus(recentTime));
-			clusterStats.add(nodeStats);
+			nodeStat.setOutgoingChannelHealth(getHealthStatus(channelLatestStatusTime));
+			nodeStat.setNodeHealth(getHealthStatus(nodeLatestStatusTime > (long)stats.get("time") ? nodeLatestStatusTime : (long)stats.get("time")));
+			clusterStats.add(nodeStat);
 		}
 		return clusterStats;
 	}
@@ -155,9 +165,5 @@ public class ControllerHelper {
 			return "Yellow";
 		else
 			return "Red";
-	}
-	
-	public static long getTimeFromUUID(UUID uuid) {
-		return (uuid.timestamp() - NUM_100NS_INTERVALS_SINCE_UUID_EPOCH) / 10000;
 	}
 }
