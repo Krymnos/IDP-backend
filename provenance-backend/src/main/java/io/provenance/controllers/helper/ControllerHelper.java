@@ -1,6 +1,7 @@
 package io.provenance.controllers.helper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,9 +36,9 @@ public class ControllerHelper {
 		for(Row row : healthResultSet.all()) {
 			String id = row.getString("id");
 			Map<String, Object> stats = new HashMap<String, Object>();
-			Map<String, Long> chanelsStatus = row.getMap("channels", String.class, Long.class);
+			Map<String, Date> chanelsStatus = row.getMap("channels", String.class, Date.class);
 			for(String chanelStatus : chanelsStatus.keySet())
-				chanels.put(chanelStatus, chanelsStatus.get(chanelStatus));
+				chanels.put(chanelStatus, chanelsStatus.get(chanelStatus).getTime());
 			stats.put("pldaemon", row.getTimestamp("pldaemon").getTime());
 			stats.put("time", row.getTimestamp("time").getTime());
 			nodeStats.put(id, stats);
