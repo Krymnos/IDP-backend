@@ -30,15 +30,15 @@ public class ControllerHelper {
 	public static List<NodeStat> queryStats(Session session, String healthQuery, String rateQuery) {
 		List<NodeStat> clusterStats = new ArrayList<NodeStat>();
 		Map<String, Map<String,Object>> nodeStats = new HashMap<String, Map<String,Object>>();
-		Map<String, Long> chanels = new HashMap<String, Long>();
+		Map<String, Long> channels = new HashMap<String, Long>();
 		ResultSet healthResultSet = session.execute(healthQuery);
 		ResultSet rateResultSet = session.execute(rateQuery);
 		for(Row row : healthResultSet.all()) {
 			String id = row.getString("id");
 			Map<String, Object> stats = new HashMap<String, Object>();
-			Map<String, Date> chanelsStatus = row.getMap("channels", String.class, Date.class);
-			for(String chanelStatus : chanelsStatus.keySet())
-				chanels.put(chanelStatus, chanelsStatus.get(chanelStatus).getTime());
+			Map<String, Date> channelsStatus = row.getMap("channels", String.class, Date.class);
+			for(String channelStatus : channelsStatus.keySet())
+				channels.put(channelStatus, channelsStatus.get(channelStatus).getTime());
 			stats.put("pldaemon", row.getTimestamp("pldaemon").getTime());
 			stats.put("time", row.getTimestamp("time").getTime());
 			nodeStats.put(id, stats);
@@ -61,25 +61,25 @@ public class ControllerHelper {
 			nodeStat.setReceiveRate((double)stats.get("rrate"));
 			nodeStat.setProvenanceDaemonHealth(getHealthStatus((long)stats.get("time")));
 			nodeStat.setPipelineDaemonHealth(getHealthStatus((long)stats.get("pldaemon")));
-			String chanelID = null;
+			String channelID = null;
 			long nodeLatestStatusTime = 0;
 			long channelLatestStatusTime = 0;
-			for(String chanel : chanels.keySet()) {
-				if(chanel.startsWith(nodeID)) {
-					channelLatestStatusTime = ((long)chanels.get(chanel));
-					chanelID = chanel;
+			for(String channel : channels.keySet()) {
+				if(channel.startsWith(nodeID)) {
+					channelLatestStatusTime = ((long)channels.get(channel));
+					channelID = channel;
 				}
-				if(chanel.contains(nodeID)) {
-					if(((long)chanels.get(chanel)) > nodeLatestStatusTime)
-						nodeLatestStatusTime = ((long)chanels.get(chanel));
+				if(channel.contains(nodeID)) {
+					if(((long)channels.get(channel)) > nodeLatestStatusTime)
+						nodeLatestStatusTime = ((long)channels.get(channel));
 				}
 			}
-			if(chanelID != null) {
-				String endpoints[] = chanelID.split(":");
-				for(String chanel : chanels.keySet()) {
-					if(chanel.startsWith(endpoints[1]) && chanel.endsWith(endpoints[0])) {
-						if(((long)chanels.get(chanel)) > channelLatestStatusTime)
-							channelLatestStatusTime = ((long)chanels.get(chanel));
+			if(channelID != null) {
+				String endpoints[] = channelID.split(":");
+				for(String channel : channels.keySet()) {
+					if(channel.startsWith(endpoints[1]) && channel.endsWith(endpoints[0])) {
+						if(((long)channels.get(channel)) > channelLatestStatusTime)
+							channelLatestStatusTime = ((long)channels.get(channel));
 					}
 				}
 				nodeStat.setOutgoingChannelHealth(getHealthStatus(channelLatestStatusTime));
