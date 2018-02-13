@@ -163,9 +163,9 @@ public class ControllerHelper {
 	
 	public static String getHealthStatus(long time) {
 		long currentTime = System.currentTimeMillis();
-		if((currentTime-time) <= 300000)
+		if((currentTime-time) <= 5000)
 			return "Green";
-		else if((currentTime-time) <= 600000)
+		else if((currentTime-time) <= 10000)
 			return "Yellow";
 		else
 			return "Red";
