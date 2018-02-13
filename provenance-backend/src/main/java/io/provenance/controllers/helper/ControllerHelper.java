@@ -16,6 +16,7 @@ import io.provenance.model.InputDatapoint;
 import io.provenance.model.Location;
 import io.provenance.model.Node;
 import io.provenance.model.NodeStat;
+import io.provenance.model.ProvenanceResultSet;
 
 public class ControllerHelper {
 	
@@ -168,5 +169,14 @@ public class ControllerHelper {
 			return "Yellow";
 		else
 			return "Red";
+	}
+	
+	public static ProvenanceResultSet queryData(Session session, String query) {
+		try {
+			List<Datapoint> datapoints = queryDatapoints(session, query);
+			return new ProvenanceResultSet(false, datapoints);
+		} catch (Exception e) {
+			return new ProvenanceResultSet(true, e.getMessage());
+		}
 	}
 }

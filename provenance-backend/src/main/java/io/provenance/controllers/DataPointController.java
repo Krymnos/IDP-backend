@@ -1,9 +1,12 @@
 package io.provenance.controllers;
 
+import java.net.URI;
 import java.util.List;
 
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,9 +16,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import de.tub.ec.pizzaservice.models.Pizza;
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
 import io.provenance.model.Datapoint;
+import io.provenance.model.ProvenanceResultSet;
 import io.provenance.repo.CassandraConnector;
 
 @RestController
@@ -71,4 +76,16 @@ public class DataPointController {
 			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
 		}
 	}
+	
+	@RequestMapping(method = RequestMethod.POST, path = "/provenance", produces = "application/json")
+    public ResponseEntity<?> createPizza(@RequestBody(required = true) String query) {
+		try {
+			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
+			Session session = CassandraConnector.getSession();
+			ProvenanceResultSet resultSet = ControllerHelper.queryData(session, query);
+	 	    return ResponseEntity.status(201).body(mapper.writeValueAsString(resultSet));
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
+		}
+    }
 }
