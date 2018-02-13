@@ -15,8 +15,6 @@ import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import de.tub.ec.pizzaservice.models.Pizza;
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
 import io.provenance.model.Datapoint;
