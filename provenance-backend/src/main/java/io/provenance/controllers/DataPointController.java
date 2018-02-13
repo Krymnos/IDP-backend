@@ -77,8 +77,8 @@ public class DataPointController {
 		try {
 			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			Session session = CassandraConnector.getSession();
-			System.out.println(mapper.readTree(query).path("json").asText());
-			ProvenanceResultSet resultSet = ControllerHelper.queryData(session, mapper.readTree(query).path("json").asText());
+			System.out.println(mapper.readTree(query).path("query").asText());
+			ProvenanceResultSet resultSet = ControllerHelper.queryData(session, mapper.readTree(query).path("query").asText());
 	 	    return ResponseEntity.status(201).body(mapper.writeValueAsString(resultSet));
 		} catch (Exception e) {
 			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
