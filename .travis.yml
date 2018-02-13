@@ -1,2 +1,12 @@
+sudo: true
 language: java
 before_script: cd provenance-backend
+
+script: mvn package
+
+deploy:
+  provider: script
+  script: ./deploy_docker.sh
+  skip_cleanup: true
+  on:
+    branch: deployment
