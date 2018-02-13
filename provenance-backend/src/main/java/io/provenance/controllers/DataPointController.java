@@ -1,9 +1,6 @@
 package io.provenance.controllers;
 
-import java.net.URI;
 import java.util.List;
-
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,7 +77,8 @@ public class DataPointController {
 		try {
 			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
 			Session session = CassandraConnector.getSession();
-			ProvenanceResultSet resultSet = ControllerHelper.queryData(session, query);
+			System.out.println(mapper.readTree(query).path("json").asText());
+			ProvenanceResultSet resultSet = ControllerHelper.queryData(session, mapper.readTree(query).path("json").asText());
 	 	    return ResponseEntity.status(201).body(mapper.writeValueAsString(resultSet));
 		} catch (Exception e) {
 			return ResponseEntity.status(500).body( String.format("\"%s\"", e.getMessage()));
