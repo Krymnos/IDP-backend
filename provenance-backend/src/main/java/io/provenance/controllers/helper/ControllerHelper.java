@@ -59,8 +59,13 @@ public class ControllerHelper {
 				stats = nodeStats.get(id);
 			else
 				stats = new HashMap<String, Object>();
-			stats.put("srate", row.getDouble("srate"));
-			stats.put("rrate", row.getDouble("rrate"));
+			if(getHealthStatus(row.getTimestamp("time").getTime()).equals("Green") ) {
+				stats.put("srate", row.getDouble("srate"));
+				stats.put("rrate", row.getDouble("rrate"));
+			} else {
+				stats.put("srate", 0.0);
+				stats.put("rrate", 0.0);
+			}
 			nodeStats.put(id, stats);
 		}
 		for(String nodeID : nodeStats.keySet()) {
