@@ -1,6 +1,7 @@
 package io.provenance.controllers;
 
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.provenance.config.Config;
 import io.provenance.controllers.helper.ControllerHelper;
 import io.provenance.model.Datapoint;
+import io.provenance.model.PipelineDatapoint;
 import io.provenance.model.ProvenanceResultSet;
 import io.provenance.repo.CassandraConnector;
 
@@ -34,7 +36,7 @@ public class DataPointController {
 				else
 					return ResponseEntity.status(404).body("No provenance is available.");
 			} else if (structure.toLowerCase().equals("linear")) {
-				List<Datapoint> datapoints = ControllerHelper.queryDatapointLinear(session, query, id);
+				List<PipelineDatapoint> datapoints = ControllerHelper.queryPipeLineDatapointLinear(session, query, id);
 				if(!datapoints.isEmpty())
 					return ResponseEntity.status(200).body(mapper.writeValueAsString(datapoints));
 				else

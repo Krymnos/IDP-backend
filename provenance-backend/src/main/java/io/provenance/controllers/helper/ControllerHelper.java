@@ -16,6 +16,7 @@ import io.provenance.model.InputDatapoint;
 import io.provenance.model.Location;
 import io.provenance.model.Node;
 import io.provenance.model.NodeStat;
+import io.provenance.model.PipelineDatapoint;
 import io.provenance.model.ProvenanceResultSet;
 
 public class ControllerHelper {
@@ -130,6 +131,43 @@ public class ControllerHelper {
 			}
 		}
 		return datapoints;
+	}
+	
+	public static List<PipelineDatapoint> queryPipeLineDatapointLinear(Session session, String query, String id) {
+		Queue<String> queue = new LinkedList<String>();
+		List<Datapoint> datapoints = new ArrayList<Datapoint>();
+		List<PipelineDatapoint> pipelineDatapoints = new ArrayList<PipelineDatapoint>();
+		queue.add(id);
+		while(!queue.isEmpty()) {
+			String finalQuery = String.format(query, queue.poll());
+			Row row = session.execute(finalQuery).one();
+			if(row != null) {
+				Datapoint dp = getDaatapoint(row);
+				Map<String, String> inputDPs = row.getMap("inputDPs", String.class, String.class);
+				for(String key : inputDPs.keySet()) {
+					dp.setInputDatapoint(new InputDatapoint(new Datapoint(key), inputDPs.get(key)));
+					queue.add(key);
+				}
+				datapoints.add(dp);
+			}
+		}
+		for(Datapoint dp : datapoints) {
+			PipelineDatapoint pDatapoint = new PipelineDatapoint(dp.getId(), dp.getContext());
+			boolean flag = false;
+			for(Datapoint pdp : datapoints) {
+				for(InputDatapoint idp : pdp.getInputDatapoints()) {
+					if(dp.getId().equals(idp.getDp().getId())) {
+						pDatapoint.setSuccessor(idp.getDp().getId());
+						flag = true;
+						break;
+					}
+				}
+				if(flag == true)
+					break;
+			}
+			pipelineDatapoints.add(pDatapoint);
+		}
+		return pipelineDatapoints;
 	}
 	
 	public static Datapoint getDaatapoint(Row row) {
