@@ -59,13 +59,8 @@ public class ControllerHelper {
 				stats = nodeStats.get(id);
 			else
 				stats = new HashMap<String, Object>();
-			if(getHealthStatus(row.getTimestamp("time").getTime()).equals("Green") ) {
-				stats.put("srate", row.getDouble("srate"));
-				stats.put("rrate", row.getDouble("rrate"));
-			} else {
-				stats.put("srate", 0.0);
-				stats.put("rrate", 0.0);
-			}
+			stats.put("srate", row.getDouble("srate"));
+			stats.put("rrate", row.getDouble("rrate"));
 			nodeStats.put(id, stats);
 		}
 		for(String nodeID : nodeStats.keySet()) {
@@ -99,6 +94,10 @@ public class ControllerHelper {
 				nodeStat.setOutgoingChannelHealth(getHealthStatus(channelLatestStatusTime));
 			}
 			nodeStat.setNodeHealth(getHealthStatus(nodeLatestStatusTime > (long)stats.get("time") ? nodeLatestStatusTime : (long)stats.get("time")));
+			if(!nodeStat.getNodeHealth().equals("Green") ) {
+				nodeStat.setSendRate(0);
+				nodeStat.setReceiveRate(0);
+			}
 			clusterStats.add(nodeStat);
 		}
 		return clusterStats;
@@ -213,9 +212,9 @@ public class ControllerHelper {
 	
 	public static String getHealthStatus(long time) {
 		long currentTime = System.currentTimeMillis();
-		if((currentTime-time) <= 10000)
+		if((currentTime-time) <= 30000)
 			return "Green";
-		else if((currentTime-time) <= 20000)
+		else if((currentTime-time) <= 60000)
 			return "Yellow";
 		else
 			return "Red";
