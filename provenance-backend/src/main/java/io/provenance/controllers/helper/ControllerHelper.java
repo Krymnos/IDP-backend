@@ -10,6 +10,9 @@ import java.util.Queue;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+
+import io.provenance.config.Config;
+import io.provenance.exception.ConfigParseException;
 import io.provenance.model.Context;
 import io.provenance.model.Datapoint;
 import io.provenance.model.InputDatapoint;
@@ -18,6 +21,10 @@ import io.provenance.model.Node;
 import io.provenance.model.NodeStat;
 import io.provenance.model.PipelineDatapoint;
 import io.provenance.model.ProvenanceResultSet;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.util.TablesNamesFinder;
 
 public class ControllerHelper {
 	
@@ -211,8 +218,25 @@ public class ControllerHelper {
 	
 	public static ProvenanceResultSet queryData(Session session, String query) {
 		try {
-			List<Datapoint> datapoints = queryDatapoints(session, query);
-			return new ProvenanceResultSet(false, datapoints);
+			Statement stmt = CCJSqlParserUtil.parse(query);
+			if(stmt instanceof Select) {
+				Select select = (Select)stmt;
+				String tempTableName = new TablesNamesFinder().getTableList(select).get(0);
+				String finalQuery = query.replaceAll(tempTableName, String.format("%s.%s", Config.getKEYSPACE(), Config.getTABLE()));
+				if(finalQuery.contains(" id")) {
+					if(finalQuery.contains("where") && finalQuery.indexOf("where") < finalQuery.indexOf(" id")) {
+						String subPart = finalQuery.substring(finalQuery.lastIndexOf("where"));
+						String id =subPart.substring(subPart.indexOf("'")+1, subPart.lastIndexOf("'"));
+						Datapoint dp = ControllerHelper.queryDatapointRecursive(session, finalQuery, id);
+						List<Datapoint> dps = new ArrayList<Datapoint>();
+						dps.add(dp);
+						return new ProvenanceResultSet(false, dps);
+					}
+				}
+				List<Datapoint> datapoints = queryDatapoints(session, finalQuery);
+				return new ProvenanceResultSet(false, datapoints);
+			} else 
+				return new ProvenanceResultSet(false, "PQL only supports select type queries.");
 		} catch (Exception e) {
 			return new ProvenanceResultSet(true, e.getMessage());
 		}

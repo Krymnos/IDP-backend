@@ -78,6 +78,7 @@ public class DataPointController {
     public ResponseEntity<?> createPizza(@RequestBody(required = true) String query) {
 		try {
 			ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(Include.NON_EMPTY);
+			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 			Session session = CassandraConnector.getSession();
 			System.out.println(mapper.readTree(query).path("query").asText());
 			ProvenanceResultSet resultSet = ControllerHelper.queryData(session, mapper.readTree(query).path("query").asText());
