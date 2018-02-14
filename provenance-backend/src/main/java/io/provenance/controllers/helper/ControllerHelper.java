@@ -157,7 +157,7 @@ public class ControllerHelper {
 			for(Datapoint pdp : datapoints) {
 				for(InputDatapoint idp : pdp.getInputDatapoints()) {
 					if(dp.getId().equals(idp.getDp().getId())) {
-						pDatapoint.setSuccessor(idp.getDp().getId());
+						pDatapoint.setSuccessor(idp.getDp().getContext().getHostId());
 						flag = true;
 						break;
 					}
