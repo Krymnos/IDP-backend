@@ -227,6 +227,8 @@ public class ControllerHelper {
 					if(finalQuery.contains("where") && finalQuery.indexOf("where") < finalQuery.indexOf(" id")) {
 						String subPart = finalQuery.substring(finalQuery.lastIndexOf("where"));
 						String id =subPart.substring(subPart.indexOf("'")+1, subPart.lastIndexOf("'"));
+						finalQuery = finalQuery.replaceAll(id, "%s");
+						System.out.println(finalQuery);
 						Datapoint dp = ControllerHelper.queryDatapointRecursive(session, finalQuery, id);
 						List<Datapoint> dps = new ArrayList<Datapoint>();
 						dps.add(dp);
