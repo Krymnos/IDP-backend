@@ -23,6 +23,11 @@
 **Example URI :** http://122.129.79.67:5000/v1/provenance/5a6830db0000b6badfb2/static?structure=linear
 **Example URI :** http://122.129.79.67:5000/v1/provenance/5a6830db0000b6badfb2/static?structure=recursive
 
+## API description
+
+[Provenance backend API docs](https://app.swaggerhub.com/apis/IDP/api-documentation/1.0.0)
+
+
 ## Building
 
 Execute `mvn clean install` to build, and create jar.
