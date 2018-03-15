@@ -29,4 +29,4 @@ Execute `mvn clean install` to build, and create jar.
 
 ## Deploy
 
-Execute `mvn clean install` to deploy jar.
+Execute `java -jar \path\to\jar\file.jar` to deploy jar.
